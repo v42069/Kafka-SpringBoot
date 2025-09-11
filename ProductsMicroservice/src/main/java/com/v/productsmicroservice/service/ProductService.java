@@ -1,4 +1,4 @@
-package com.v.service;
+package com.v.productsmicroservice.service;
 
 
 public interface ProductService {

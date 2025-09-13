@@ -3,6 +3,6 @@ package com.v.productsmicroservice.service;
 
 public interface ProductService {
 	
-	String createProduct(CreateProductRestModel productRestModel) throws Exception ;
+	String createProduct(CreateProductRestModel productRestModel) throws Exception;
 
 }

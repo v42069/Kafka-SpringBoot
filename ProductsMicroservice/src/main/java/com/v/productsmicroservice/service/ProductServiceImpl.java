@@ -1,8 +1,10 @@
 package com.v.productsmicroservice.service;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.v.productsmicroservice.dto.CreateProductRestModel;
+import com.v.productsmicroservice.exception.EventPublishException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,18 +21,27 @@ public class ProductServiceImpl implements ProductService {
 		this.kafkaTemplate = kafkaTemplate;
 	}
 
+
+//	 Synchronous
 	@Override
-	public String createProduct(CreateProductRestModel productRestModel) throws Exception {
+	public String createProduct(CreateProductRestModel productRestModel) {
 
 		String productId = UUID.randomUUID().toString();
 
 		// TODO: Persist Product Details into database table before publishing an Event
 
-		ProductCreatedEvent productCreatedEvent = new ProductCreatedEvent(productId,
-				productRestModel.getTitle(), productRestModel.getPrice(),
-				productRestModel.getQuantity());
 
-		LOGGER.info("Before publishing a ProductCreatedEvent");
+		// filling the event pojo
+		ProductCreatedEvent productCreatedEvent = ProductCreatedEvent.builder()
+				.productId(productId)
+				.price(productRestModel.getPrice())
+				.title(productRestModel.getTitle())
+				.quantity(productRestModel.getQuantity())
+				.build();
+
+
+		try{
+		LOGGER.info("*****Before publishing a ProductCreatedEvent");
 
 		SendResult<String, ProductCreatedEvent> result =
 				kafkaTemplate.send("product-created-events-topic",productId, productCreatedEvent).get();
@@ -40,8 +51,55 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("Offset: " + result.getRecordMetadata().offset());
 
 		LOGGER.info("***** Returning product id");
+	} catch (Exception e) {
+		LOGGER.error("*****Failed to publish ProductCreatedEvent: {}", e.getMessage(), e);
+		throw new EventPublishException("*****Could not publish product event", e); // custom exception
+	}
 
 		return productId;
 	}
+
+
+	// Asynchronous
+//	public String createProduct(CreateProductRestModel productRestModel) {
+//
+//		String productId = UUID.randomUUID().toString();
+//
+//		// TODO: Persist Product Details into database table before publishing an Event
+//
+//
+//		// filling the event pojo
+//		ProductCreatedEvent productCreatedEvent = ProductCreatedEvent.builder()
+//				.productId(productId)
+//				.price(productRestModel.getPrice())
+//				.title(productRestModel.getTitle())
+//				.quantity(productRestModel.getQuantity())
+//				.build();
+//
+//
+//		try {
+//			LOGGER.info("***** Before publishing a ProductCreatedEvent");
+//
+//			CompletableFuture<SendResult<String, ProductCreatedEvent>> future =
+//					kafkaTemplate.send("product-created-events-topic", productId, productCreatedEvent);
+//
+//			future.whenComplete((result, exception) -> {
+//				if (exception != null) {
+//					LOGGER.error("Message send failed", exception); // ✅ log stack trace
+//				} else {
+//					LOGGER.info("** Message sent successfully: {}", result.getRecordMetadata());
+//				}
+//			});
+//
+//			LOGGER.info("***** Returning product id");
+//
+//		} catch (Exception e) {
+//			LOGGER.error("***** Failed to publish ProductCreatedEvent", e);
+//			throw new EventPublishException("***** Could not publish product event", e);
+//		}
+//
+//		return productId;
+//	}
+
 
 }

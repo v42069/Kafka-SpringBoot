@@ -5,6 +5,6 @@ import com.v.productsmicroservice.dto.CreateProductRestModel;
 
 public interface ProductService {
 
-	String createProduct(CreateProductRestModel productRestModel) throws Exception;
+	String createProduct(CreateProductRestModel productRestModel);
 
 }

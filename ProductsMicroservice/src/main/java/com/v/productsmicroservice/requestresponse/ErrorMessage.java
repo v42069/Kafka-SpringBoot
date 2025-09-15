@@ -1,4 +1,4 @@
-package com.v.productsmicroservice.responsestructure;
+package com.v.productsmicroservice.requestresponse;
 
 import lombok.Builder;
 import lombok.Getter;

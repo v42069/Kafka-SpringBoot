@@ -1,6 +1,6 @@
 package com.v.productsmicroservice.exception;
 
-import com.v.productsmicroservice.responsestructure.ErrorMessage;
+import com.v.productsmicroservice.requestresponse.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

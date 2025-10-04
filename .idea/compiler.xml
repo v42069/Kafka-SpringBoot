@@ -8,14 +8,17 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ProductsMicroservice" />
+        <module name="EmailNotificationMicroservice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="EmailNotificationMicroservice" target="17" />
       <module name="ProductsMicroservice" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="EmailNotificationMicroservice" options="-parameters" />
       <module name="ProductsMicroservice" options="-parameters" />
     </option>
   </component>

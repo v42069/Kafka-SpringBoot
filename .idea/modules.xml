@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/EmailNotificationMicroservice/EmailNotificationMicroservice.iml" filepath="$PROJECT_DIR$/EmailNotificationMicroservice/EmailNotificationMicroservice.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/Kafka SpringBoot.iml" filepath="$PROJECT_DIR$/.idea/Kafka SpringBoot.iml" />
       <module fileurl="file://$PROJECT_DIR$/ProductsMicroservice/ProductsMicroservice.iml" filepath="$PROJECT_DIR$/ProductsMicroservice/ProductsMicroservice.iml" />
     </modules>
   </component>

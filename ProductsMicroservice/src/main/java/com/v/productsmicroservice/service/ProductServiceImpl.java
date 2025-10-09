@@ -3,6 +3,7 @@ package com.v.productsmicroservice.service;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.v.core.ProductCreatedEvent;
 import com.v.productsmicroservice.dto.CreateProductRestModel;
 import com.v.productsmicroservice.exception.EventPublishException;
 import org.slf4j.Logger;

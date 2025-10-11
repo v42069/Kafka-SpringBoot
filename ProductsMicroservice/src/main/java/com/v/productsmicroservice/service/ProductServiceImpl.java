@@ -26,6 +26,17 @@ public class ProductServiceImpl implements ProductService {
 //	 Synchronous
 	@Override
 	public String createProduct(CreateProductRestModel productRestModel) {
+//
+//		What this implies in Kafka
+//		Partitioning
+//		Kafka uses the key to determine the partition.
+//		Since each key is unique, Kafka will likely distribute these messages across different partitions (depending on the number of partitions and the partitioner algorithm).
+//		Ordering
+//		Ordering is guaranteed per key per partition.
+//		Because every key is different, you don’t have ordering guarantees across messages, only within a single key (which is unique, so practically no ordering constraint).
+//		Consumer behavior
+//		If you have consumers reading from this topic, they will see messages possibly in different partitions, and ordering of products is not guaranteed.
+//		But for your use case (productCreatedEvent), that’s usually fine since each product is independent.
 
 		String productId = UUID.randomUUID().toString();
 

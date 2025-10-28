@@ -1,5 +1,7 @@
 package com.v.emailnotification.config;
 
+import com.v.emailnotification.error.NotRetryableException;
+import com.v.emailnotification.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -19,6 +21,8 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Configuration
 public class KafkaConsumerConfiguration {
@@ -50,8 +54,9 @@ public class KafkaConsumerConfiguration {
 			ConsumerFactory<String, Object> consumerFactory, KafkaTemplate kafkaTemplate) {
 
 		//provide error handling capablities for kafka consumers used to handle message  exception
-		DefaultErrorHandler defaultErrorHandler=new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate));
-
+		DefaultErrorHandler defaultErrorHandler=new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),new FixedBackOff(5000,3));
+		defaultErrorHandler.addNotRetryableExceptions(NotRetryableException.class);
+		defaultErrorHandler.addRetryableExceptions(RetryableException.class);
 		ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory);
 		//register error handler

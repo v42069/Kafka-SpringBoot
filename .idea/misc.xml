@@ -7,6 +7,8 @@
         <option value="$PROJECT_DIR$/ProductsMicroservice/pom.xml" />
         <option value="$PROJECT_DIR$/EmailNotificationMicroservice/pom.xml" />
         <option value="$PROJECT_DIR$/core/pom.xml" />
+        <option value="$PROJECT_DIR$/mockservice-for-retryable/pom.xml" />
+        <option value="$PROJECT_DIR$/email-notification-microservice/pom.xml" />
       </list>
     </option>
   </component>

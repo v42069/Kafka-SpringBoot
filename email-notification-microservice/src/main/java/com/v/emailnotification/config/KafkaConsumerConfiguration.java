@@ -58,7 +58,7 @@ public class KafkaConsumerConfiguration {
 
     @Bean
     ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            ConsumerFactory<String, Object> consumerFactory, KafkaTemplate kafkaTemplate) {
+            ConsumerFactory<String, Object> consumerFactory, KafkaTemplate<String,Object> kafkaTemplate) {
 
         //provide error handling capablities for kafka consumers used to handle message  exception
         DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate), new FixedBackOff(5000, 3));

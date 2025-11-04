@@ -22,6 +22,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="core" options="-parameters" />
       <module name="email-notification-microservice" options="-parameters" />
+      <module name="mockservice-for-retryable" options="-parameters" />
       <module name="products-microservice" options="-parameters" />
       <module name="produdcts-microservice" options="-parameters" />
     </option>

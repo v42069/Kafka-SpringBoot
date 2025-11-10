@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import com.v.core.ProductCreatedEvent;
 import com.v.productsmicroservice.dto.CreateProductRestModel;
 import com.v.productsmicroservice.exception.EventPublishException;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -55,8 +56,16 @@ public class ProductServiceImpl implements ProductService {
 		try{
 		LOGGER.info("*****Before publishing a ProductCreatedEvent");
 
+		// Adding ProductRecord to add headers in kafka message
+		ProducerRecord<String,ProductCreatedEvent> producerRecord = new ProducerRecord(
+				"product-created-events-topic",
+				productId,
+				productCreatedEvent
+		);
+		producerRecord.headers().add("messageId",UUID.randomUUID().toString().getBytes());
+
 		SendResult<String, ProductCreatedEvent> result =
-				kafkaTemplate.send("product-created-events-topic",productId, productCreatedEvent).get();
+				kafkaTemplate.send(producerRecord).get();
 
 		LOGGER.info("Partition: " + result.getRecordMetadata().partition());
 		LOGGER.info("Topic: " + result.getRecordMetadata().topic());

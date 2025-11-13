@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProcessEventRepository extends JpaRepository<ProcessEventEntity,Long> {
+
+    // Optimised exist check
+    boolean existsByMessageId(String messageId);
 }

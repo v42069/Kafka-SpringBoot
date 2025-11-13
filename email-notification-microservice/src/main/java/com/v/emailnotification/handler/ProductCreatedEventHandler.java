@@ -42,6 +42,14 @@ public class ProductCreatedEventHandler {
 
         LOGGER.info("Received a new event: " + productCreatedEvent.getTitle());
 
+        // Checking if messageId is present in db
+
+        if(eventRepository.existsByMessageId(messageId)){
+            LOGGER.error("Found duplicate message Id this is already present {} "+messageId);
+            return;
+        }
+
+
         String requestUrl = "http://localhost:8082/response/200";
 
         try {
@@ -77,7 +85,7 @@ public class ProductCreatedEventHandler {
          */
         try {
             eventRepository.save(processEvent);
-        }catch(DataIntegrityViolationException violationException){
+        } catch (DataIntegrityViolationException violationException) {
             LOGGER.error(violationException.getMessage());
             // throwing not retryable
             throw new NotRetryableException("Duplicate Message");

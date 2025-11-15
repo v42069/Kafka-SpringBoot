@@ -54,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
 
 
 		try{
-		LOGGER.info("*****Before publishing a ProductCreatedEvent");
+		LOGGER.info("*****Before publishing a ProductCreatedEvent " + productCreatedEvent.toString());
 
 		// Adding ProductRecord to add headers in kafka message
 		ProducerRecord<String,ProductCreatedEvent> producerRecord = new ProducerRecord(
@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
 				productId,
 				productCreatedEvent
 		);
-		producerRecord.headers().add("messageId","1".getBytes());
+		producerRecord.headers().add("messageId",productId.toString().getBytes());
 
 
 		SendResult<String, ProductCreatedEvent> result =

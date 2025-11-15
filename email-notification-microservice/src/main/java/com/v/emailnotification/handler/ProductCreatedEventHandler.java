@@ -25,16 +25,18 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-@KafkaListener(topics = "product-created-events-topic")
 @AllArgsConstructor
 public class ProductCreatedEventHandler {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-    RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    private ProcessEventRepository eventRepository;
+    private final ProcessEventRepository eventRepository;
 
-    @KafkaHandler
+    @KafkaListener(
+            topics = "product-created-events-topic",
+            groupId = "product-created-events"
+    )
     @Transactional
     public void handle(@Payload ProductCreatedEvent productCreatedEvent, @Header("messageId") String messageId, @Header(KafkaHeaders.RECEIVED_KEY) String messageKey) {
         //simulate non retryable exception
@@ -74,7 +76,7 @@ public class ProductCreatedEventHandler {
         LOGGER.info("Received a new event: {}", productCreatedEvent.getTitle());
 
 
-        ProcessEventEntity processEvent = ProcessEventEntity.builder().productId(productCreatedEvent.getProductId()).messageId(messageId).build();
+        ProcessEventEntity processEvent = ProcessEventEntity.builder().productId(productCreatedEvent.getProductId()).messageId(messageId).productTitle(productCreatedEvent.getTitle()).build();
         // Save id in DB
 
         /*

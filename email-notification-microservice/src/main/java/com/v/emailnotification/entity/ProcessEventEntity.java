@@ -28,5 +28,8 @@ public class ProcessEventEntity implements Serializable {
     @Column(nullable = false)
     private String productId;
 
+    @Column
+    private String productTitle;
+
 
 }

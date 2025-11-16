@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-	KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate;
+	private final KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate;
 	private final Logger LOGGER  = LoggerFactory.getLogger(this.getClass());
 
 	public ProductServiceImpl(KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate) {
@@ -62,11 +62,18 @@ public class ProductServiceImpl implements ProductService {
 				productId,
 				productCreatedEvent
 		);
-		producerRecord.headers().add("messageId",productId.toString().getBytes());
+//		producerRecord.headers().add("messageId",productId.toString().getBytes());
+			// sending same id for duplicate messages
+		producerRecord.headers().add("messageId","1".getBytes());
+
+		LOGGER.info(producerRecord.toString());
 
 
 		SendResult<String, ProductCreatedEvent> result =
 				kafkaTemplate.send(producerRecord).get();
+
+		LOGGER.info("Partition: {}, Topic: {}, Offset: {}", result.getRecordMetadata().partition(),
+				result.getRecordMetadata().topic(), result.getRecordMetadata().offset());
 
 		LOGGER.info("Partition: " + result.getRecordMetadata().partition());
 		LOGGER.info("Topic: " + result.getRecordMetadata().topic());

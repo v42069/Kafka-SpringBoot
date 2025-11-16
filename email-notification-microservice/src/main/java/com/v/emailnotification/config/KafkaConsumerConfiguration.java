@@ -103,13 +103,12 @@ public class KafkaConsumerConfiguration {
 
     // creating producer for adding it to kafka template
     // This method will work as configuration and configuration key value pairs.
-    // here we configured producer
+    // here we configured producer for DLT
     @Bean
     ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         // Fixed: Use producer bootstrap servers, not consumer
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                environment.getProperty("spring.kafka.producer.bootstrap-servers"));
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,environment.getProperty("spring.kafka.producer.bootstrap-servers"));
 
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);

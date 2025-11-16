@@ -44,14 +44,19 @@ public class ProductCreatedEventHandler {
 
         LOGGER.info("Received a new event: " + productCreatedEvent.toString());
 
-        // Save to DB first for idempotency
+        // CHeck in DB to avoid retrying
+        if(eventRepository.existsByMessageId(messageId)){
+            LOGGER.info("Duplicate message detected and skipped: {}", messageId);
+            return;
+        }
+
+        // Save to DB
 
         ProcessEventEntity processEvent = ProcessEventEntity.builder()
                 .productId(productCreatedEvent.getProductId())
                 .messageId(messageId)
                 .productTitle(productCreatedEvent.getTitle())
                 .build();
-        // Save id in DB
 
         /*
         Now when this event is processed for the very first time, this code it will store unique ID into database
@@ -63,7 +68,7 @@ public class ProductCreatedEventHandler {
             eventRepository.save(processEvent);
         } catch (DataIntegrityViolationException violationException) {
             LOGGER.info("Duplicate message detected and skipped: {}", messageId);
-            return; // Already processed
+            throw new NotRetryableException(violationException.getMessage());
         }
 
 

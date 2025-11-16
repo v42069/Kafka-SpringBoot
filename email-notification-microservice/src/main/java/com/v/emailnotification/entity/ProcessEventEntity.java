@@ -13,14 +13,14 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "PROCESSED_EVENTS")
-public class ProcessEventEntity implements Serializable {
+public class ProcessEventEntity {
 
 
-    private static final long serialVersionUID=1L;
+    private static final Long serialVersionUID=1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false,unique = true)
     private String messageId;

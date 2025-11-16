@@ -42,13 +42,28 @@ public class ProductCreatedEventHandler {
         //simulate non retryable exception
 //		if(true) throw new RetryableException("Retryable exception takes place no need to retry");
 
-        LOGGER.info("Received a new event: " + productCreatedEvent.getTitle());
+        LOGGER.info("Received a new event: " + productCreatedEvent.toString());
 
-        // Checking if messageId is present in db
+        // Save to DB first for idempotency
 
-        if(eventRepository.existsByMessageId(messageId)){
-            LOGGER.error("Found duplicate message Id this is already present {} "+messageId);
-            return;
+        ProcessEventEntity processEvent = ProcessEventEntity.builder()
+                .productId(productCreatedEvent.getProductId())
+                .messageId(messageId)
+                .productTitle(productCreatedEvent.getTitle())
+                .build();
+        // Save id in DB
+
+        /*
+        Now when this event is processed for the very first time, this code it will store unique ID into database
+        table successfully.But if it happens that this handle method receives the same event again, then this code, it will not
+        be able to store the same message ID to our database table, because a record with this message ID already
+        exists in a database, and as a result we will get exception.
+         */
+        try {
+            eventRepository.save(processEvent);
+        } catch (DataIntegrityViolationException violationException) {
+            LOGGER.info("Duplicate message detected and skipped: {}", messageId);
+            return; // Already processed
         }
 
 
@@ -73,25 +88,6 @@ public class ProductCreatedEventHandler {
             throw new NotRetryableException(ex);
         }
 
-        LOGGER.info("Received a new event: {}", productCreatedEvent.getTitle());
-
-
-        ProcessEventEntity processEvent = ProcessEventEntity.builder().productId(productCreatedEvent.getProductId()).messageId(messageId).productTitle(productCreatedEvent.getTitle()).build();
-        // Save id in DB
-
-        /*
-        Now when this event is processed for the very first time, this code it will store unique ID into database
-        table successfully.But if it happens that this handle method receives the same event again, then this code, it will not
-        be able to store the same message ID to our database table, because a record with this message ID already
-        exists in a database, and as a result we will get exception.
-         */
-        try {
-            eventRepository.save(processEvent);
-        } catch (DataIntegrityViolationException violationException) {
-            LOGGER.error(violationException.getMessage());
-            // throwing not retryable
-            throw new NotRetryableException("Duplicate Message");
-        }
     }
 
 }

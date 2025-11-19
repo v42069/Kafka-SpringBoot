@@ -9,11 +9,15 @@
         <outputRelativeToContentRoot value="true" />
         <module name="core" />
         <module name="mockservice-for-retryable" />
+        <module name="transfer-microservice" />
         <module name="email-notification-microservice" />
+        <module name="deposit-microservice" />
         <module name="produdcts-microservice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="deposit-microservice_main" target="17" />
+      <module name="deposit-microservice_test" target="17" />
       <module name="emailnotification" target="17" />
       <module name="products-microservice" target="17" />
     </bytecodeTargetLevel>
@@ -21,10 +25,12 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="core" options="-parameters" />
+      <module name="deposit-microservice" options="-parameters" />
       <module name="email-notification-microservice" options="-parameters" />
       <module name="mockservice-for-retryable" options="-parameters" />
       <module name="products-microservice" options="-parameters" />
       <module name="produdcts-microservice" options="-parameters" />
+      <module name="transfer-microservice" options="-parameters" />
     </option>
   </component>
 </project>

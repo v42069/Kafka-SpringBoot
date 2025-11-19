@@ -1,4 +1,4 @@
-package com.v.deposit_microservice;
+package com.v.depositmicroservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.v.transfermicroservice;
+package com.v.transfermicroservice.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +12,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class KafkaConfig {
@@ -84,4 +85,10 @@ public class KafkaConfig {
 	NewTopic createDepositTopic() {
 		return TopicBuilder.name(depositTopicName).partitions(3).replicas(3).build();
 	}
+
+	@Bean
+	RestTemplate getRestTemplate() {
+		return new RestTemplate();
+	}
+
 }

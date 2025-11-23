@@ -3,6 +3,8 @@ package com.v.depositmicroservice.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.v.core.error.NotRetryableException;
+import com.v.core.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

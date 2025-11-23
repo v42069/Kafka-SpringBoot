@@ -1,5 +1,7 @@
 package com.v.transfermicroservice.service;
 
+import com.v.core.events.DepositRequestedEvent;
+import com.v.core.events.WithdrawalRequestedEvent;
 import com.v.transfermicroservice.error.TransferServiceException;
 import com.v.transfermicroservice.model.TransferRestModel;
 import org.slf4j.Logger;

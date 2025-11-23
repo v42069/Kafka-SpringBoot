@@ -1,5 +1,6 @@
 package com.v.transfermicroservice.controller;
 
+import com.v.transfermicroservice.model.TransferRestModel;
 import com.v.transfermicroservice.service.TransferService;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;

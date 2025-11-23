@@ -1,5 +1,7 @@
 package com.v.transfermicroservice.service;
 
+import com.v.transfermicroservice.error.TransferServiceException;
+import com.v.transfermicroservice.model.TransferRestModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -10,10 +12,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.appsdeveloperblog.estore.transfers.error.TransferServiceException;
-import com.appsdeveloperblog.estore.transfers.model.TransferRestModel;
-import com.appsdeveloperblog.payments.ws.core.events.DepositRequestedEvent;
-import com.appsdeveloperblog.payments.ws.core.events.WithdrawalRequestedEvent;
 
 @Service
 public class TransferServiceImpl implements TransferService {
@@ -32,7 +30,8 @@ public class TransferServiceImpl implements TransferService {
 
 	@Override
 	public boolean transfer(TransferRestModel transferRestModel) {
-		WithdrawalRequestedEvent withdrawalEvent = new WithdrawalRequestedEvent(transferRestModel.getSenderId(),
+		WithdrawalRequestedEvent
+				withdrawalEvent = new WithdrawalRequestedEvent(transferRestModel.getSenderId(),
 				transferRestModel.getRecepientId(), transferRestModel.getAmount());
 		DepositRequestedEvent depositEvent = new DepositRequestedEvent(transferRestModel.getSenderId(),
 				transferRestModel.getRecepientId(), transferRestModel.getAmount());

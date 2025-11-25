@@ -12,8 +12,10 @@
         <option value="$PROJECT_DIR$/products-microservice/pom.xml" />
         <option value="$PROJECT_DIR$/deposit-microservice/pom.xml" />
         <option value="$PROJECT_DIR$/transfer-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/withdrawl-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/withdrawal-microservice/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="17" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK" />
 </project>

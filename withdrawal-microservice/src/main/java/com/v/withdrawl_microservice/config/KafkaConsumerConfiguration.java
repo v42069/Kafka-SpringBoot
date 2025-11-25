@@ -1,4 +1,4 @@
-package com.v.depositmicroservice.config;
+package com.v.withdrawl_microservice.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,6 @@ import com.v.core.error.NotRetryableException;
 import com.v.core.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
+
 @Configuration
 public class KafkaConsumerConfiguration {
 
@@ -54,13 +54,6 @@ public class KafkaConsumerConfiguration {
 
 		ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory);
-
-		// Configure dead letter publishing with explicit destination
-		DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
-				(record, ex) -> {
-					// Route to DLT topic
-					return new TopicPartition(record.topic() + ".DLT", record.partition());
-				});
 
 		DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),
 				new FixedBackOff(5000, 3));

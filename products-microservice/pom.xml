@@ -11,7 +11,7 @@
 	<groupId>com.v</groupId>
 	<artifactId>produdcts-microservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>produdcts-microservice</name>
+	<name>products-microservice</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

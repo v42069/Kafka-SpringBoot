@@ -12,7 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.nio.file.FileAlreadyExistsException;
+import java.sql.SQLException;
 
 
 @Service
@@ -31,6 +35,7 @@ public class TransferServiceImpl implements TransferService {
 	}
 
 	@Override
+	@Transactional(value = "kafkaTransactionalManager",rollbackFor = {TransferServiceException.class, SQLException.class},noRollbackFor = FileAlreadyExistsException.class)
 	public boolean transfer(TransferRestModel transferRestModel) {
 		WithdrawalRequestedEvent
 				withdrawalEvent = new WithdrawalRequestedEvent(transferRestModel.getSenderId(),
@@ -39,6 +44,7 @@ public class TransferServiceImpl implements TransferService {
 				transferRestModel.getRecepientId(), transferRestModel.getAmount());
 
 		try {
+			// 1st producer
 			kafkaTemplate.send(environment.getProperty("withdraw-money-topic", "withdraw-money-topic"),
 					withdrawalEvent);
 			LOGGER.info("Sent event to withdrawal topic.");
@@ -46,6 +52,7 @@ public class TransferServiceImpl implements TransferService {
 			// Business logic that causes and error
 			callRemoteServce();
 
+			// 2nd producer
 			kafkaTemplate.send(environment.getProperty("deposit-money-topic", "deposit-money-topic"), depositEvent);
 			LOGGER.info("Sent event to deposit topic");
 

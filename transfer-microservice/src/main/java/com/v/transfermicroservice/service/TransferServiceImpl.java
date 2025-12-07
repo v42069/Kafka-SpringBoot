@@ -35,7 +35,7 @@ public class TransferServiceImpl implements TransferService {
 	}
 
 	@Override
-	@Transactional(rollbackFor = {TransferServiceException.class, SQLException.class},noRollbackFor = FileAlreadyExistsException.class)
+	@Transactional(value = "kafkaTransactionManager" ,rollbackFor = {TransferServiceException.class, SQLException.class},noRollbackFor = FileAlreadyExistsException.class)
 	public boolean transfer(TransferRestModel transferRestModel) {
 		WithdrawalRequestedEvent
 				withdrawalEvent = new WithdrawalRequestedEvent(transferRestModel.getSenderId(),

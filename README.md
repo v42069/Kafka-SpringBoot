@@ -98,26 +98,6 @@ Benefits:
 
 ---
 
-## Saga Pattern Implementation
-
-### Supported Patterns
-| Pattern | Description |
-|--------|-------------|
-| Choreography Saga | Services react to events + publish next event |
-| Orchestration Saga | Dedicated orchestrator commands services |
-| Compensating Actions | Reverse previous success when step fails |
-
-### Happy Path Flow (simplified)
-
-`OrderCreatedEvent` → Reserve stock → Payment → Approve order
-
-### Failure / Compensation Flow
-If payment fails → Cancel reservation → Reject order
-
-This guarantees **eventual consistency** across microservices.
-
----
-
 ## Testing Strategy
 
 | Testing Type | Coverage |

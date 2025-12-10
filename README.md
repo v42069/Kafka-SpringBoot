@@ -21,40 +21,9 @@ It covers:
 - Idempotent Producer & Consumer
 - **Transactional Messaging** with DB integration
 - **Kafka Testing: Unit + Integration**
-- Distributed workflows using **Saga**
-  - Choreography-based Saga
-  - Orchestration-based Saga
-  - Compensating transactions
 - Dockerized **Kafka cluster setup** using KRaft (no Zookeeper)
 ---
 
-## Architecture
-
-### Microservices:
-| Service | Description |
-|--------|-------------|
-| Producer | REST → Kafka topic, acks, retries, idempotence |
-| Consumer | Transactional event processing + idempotency |
-| Order Service | Sends order events (start of Saga) |
-| Inventory Service | Reserves product for order |
-| Payment Service | Handles payment processing |
-| History DB | Stores processed event + order status |
-
-### Kafka Topics (examples)
-| Topic | Purpose |
-|-------|---------|
-| `order-created` | Order saga start event |
-| `reserve-product` | Command to Inventory service |
-| `product-reserved` | Inventory success |
-| `product-reservation-failed` | Inventory fail |
-| `process-payment` | Payment command |
-| `payment-processed` | Success |
-| `payment-failed` | Failure |
-| `approve-order` | Final approval |
-| `reject-order` | Final rejection |
-| `*-dlt` | Dead letter topics for failures |
-
----
 
 ## Key Features
 

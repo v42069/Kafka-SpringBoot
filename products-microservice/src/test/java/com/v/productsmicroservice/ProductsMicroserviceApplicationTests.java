@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @DirtiesContext
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) //same instance for each method
 @ActiveProfiles("test") // application-test.properties
 //count is no of broker
 @EmbeddedKafka(partitions = 3,count = 3,controlledShutdown = true)
@@ -54,15 +54,21 @@ class ProductsMicroserviceApplicationTests {
 	private KafkaMessageListenerContainer<String, ProductCreatedEvent> container;
 	private BlockingQueue<ConsumerRecord<String, ProductCreatedEvent>> records;
 
+//	to do that i will create msg listener which will execute before all method in this class
 	@BeforeAll
 	void setUp() {
+		//initialize prop which we created
 		DefaultKafkaConsumerFactory<String, Object> consumerFactory = new DefaultKafkaConsumerFactory<>(getConsumerProperties());
 
+		// container prop to specify which topic to consume from
 		ContainerProperties containerProperties = new ContainerProperties(environment.getProperty("product-created-events-topic-name"));
 		container = new KafkaMessageListenerContainer<>(consumerFactory, containerProperties);
+		// queue to store kafka records
 		records = new LinkedBlockingQueue<>();
+//		listener to add msg to the queues
 		container.setupMessageListener((MessageListener<String, ProductCreatedEvent>) records::add);
 		container.start();
+		// wait for kafka partition to be assigned
 		ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
 
 	}
@@ -72,6 +78,7 @@ class ProductsMicroserviceApplicationTests {
 
 		// Arrange
 
+		// creating obj to test
 		String title="iPhone 11";
 		BigDecimal price = new BigDecimal(600);
 		Integer quantity = 1;
@@ -82,11 +89,13 @@ class ProductsMicroserviceApplicationTests {
 		createProductRestModel.setTitle(title);
 
 		// Act
-
+		//this method throws exception hence added throws in method
 		productService.createProduct(createProductRestModel);
 
 
 		// Assert
+		// Validate that msg is published successfully by comparing the one which we created and the other which we get from kafka
+		// to validate from kafka we need to create a consumer which can consume --> line 103
 		ConsumerRecord<String, ProductCreatedEvent> message = records.poll(3000, TimeUnit.MILLISECONDS);
 		assertNotNull(message);
 		assertNotNull(message.key());
@@ -97,7 +106,14 @@ class ProductsMicroserviceApplicationTests {
 	}
 
 
+	// kafka consumer configuration setting up this method will return map of configuration prop
+	// now we have kafka consumer configuration we can use them to listen to a specific topic -->line56
 	private Map<String, Object> getConsumerProperties() {
+//		I use this embedded Kafka broker to get a list of brokers because it helps me connect to the correct brokers,
+//		even when their port numbers change dynamically during testing.
+//		When you start the embedded Kafka broker, it automatically assigns random port numbers to its brokers.
+//		These port numbers can change every time you run your tests, so you can’t hardcode broker addresses and port numbers in your test configuration.
+//		To get the dynamically assigned brokers, you can use the `getBrokersAnalyst` method to get a list of brokers from the embedded Kafka broker.
 		return Map.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, embeddedKafkaBroker.getBrokersAsString(),
 				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
 				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class,

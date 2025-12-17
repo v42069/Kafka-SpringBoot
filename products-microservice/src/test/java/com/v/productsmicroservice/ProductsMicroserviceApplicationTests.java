@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) //same instance for each method
 @ActiveProfiles("test") // application-test.properties
 //count is no of broker
-@EmbeddedKafka(partitions = 3,count = 3,controlledShutdown = true)
+@EmbeddedKafka(count = 3)
 class ProductsMicroserviceApplicationTests {
 
 	@Autowired

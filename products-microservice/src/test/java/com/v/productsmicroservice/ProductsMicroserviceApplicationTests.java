@@ -34,12 +34,12 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+@SpringBootTest()
 @DirtiesContext
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) //same instance for each method
 @ActiveProfiles("test") // application-test.properties
 //count is no of broker
-@EmbeddedKafka(count = 3)
+@EmbeddedKafka(partitions=3, count=3, controlledShutdown=true)
 class ProductsMicroserviceApplicationTests {
 
 	@Autowired

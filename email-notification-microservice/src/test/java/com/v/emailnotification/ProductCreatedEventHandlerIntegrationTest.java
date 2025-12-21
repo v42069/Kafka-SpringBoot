@@ -19,6 +19,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpMethod;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -52,27 +53,33 @@ public class ProductCreatedEventHandlerIntegrationTest {
         String messageId = UUID.randomUUID().toString();
         String messageKey = productCreatedEvent.getProductId();
 
+        // setting producer record object which will be sent as kafka message
         ProducerRecord<String, Object> record = new ProducerRecord<>(
-                "product-created-events-topic",
-                messageKey,
-                productCreatedEvent);
+                "product-created-events-topic", //topic name
+                messageKey, // msg key
+                productCreatedEvent); // msg payload which is product obj
 
+        // adding headers
         record.headers().add("messageId", messageId.getBytes());
         record.headers().add(KafkaHeaders.RECEIVED_KEY, messageKey.getBytes());
 
+
+        // mocking repository
         ProcessEventEntity processedEventEntity = new ProcessEventEntity();
-        Mockito.when(processedEventRepository.existsByMessageId(ArgumentMatchers.anyString())).thenReturn(processedEventEntity);
-        Mockito.when(processedEventRepository.save(any(ProcessEventEntity.class))).thenReturn(null);
+        Mockito.when(processedEventRepository.existsByMessageId(ArgumentMatchers.anyString())).thenReturn(true);
+        Mockito.when(processedEventRepository.save(ArgumentMatchers.any(ProcessEventEntity.class))).thenReturn(null);
+
+
 
         String responseBody = "{\"key\":\"value\"}";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        ResponseEntity<String> responseEntity = new ResponseEntity<>()y<>(responseBody, headers, HttpStatus.OK);
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
 
         Mockito.when(restTemplate.exchange(
-                any(String.class),
-                any(HttpMethod.class),
-                isNull(), eq(String.class)
+                Mockito.any(String.class),
+                Mockito.any(HttpMethod.class),
+                Mockito.isNull(), Mockito.eq(String.class)
         ))
                 .thenReturn(responseEntity);
 

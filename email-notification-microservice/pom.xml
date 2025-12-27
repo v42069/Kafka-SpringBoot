@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.5</version> <!-- ✅ your Spring Boot version -->
+    <version>3.2.0</version> <!-- ✅ your Spring Boot version -->
     <relativePath/> <!-- lookup parent from the Maven repository -->
   </parent>
 
@@ -25,10 +25,6 @@
       <groupId>com.v</groupId>
       <artifactId>core</artifactId>
       <version>0.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

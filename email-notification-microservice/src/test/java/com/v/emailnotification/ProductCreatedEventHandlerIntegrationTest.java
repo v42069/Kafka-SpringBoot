@@ -1,47 +1,83 @@
 package com.v.emailnotification;
 
-import com.v.core.ProductCreatedEvent;
-import com.v.emailnotification.entity.ProcessEventEntity;
-import com.v.emailnotification.handler.ProductCreatedEventHandler;
-import com.v.emailnotification.repository.ProcessEventRepository;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpMethod;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@EmbeddedKafka
-@SpringBootTest(properties="spring.kafka.consumer.bootstrap-servers=${spring.embedded.kafka.brokers}")
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.MessageListenerContainer;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.ContainerTestUtils;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.RestTemplate;
+
+import com.v.core.ProductCreatedEvent;
+import com.v.emailnotification.handler.ProductCreatedEventHandler;
+import com.v.emailnotification.entity.ProcessEventEntity;
+import com.v.emailnotification.repository.ProcessEventRepository;
+
+@ActiveProfiles("test")
+@SpringBootTest
+@EmbeddedKafka(partitions=1, count=1, controlledShutdown=true)
+@TestPropertySource(properties = {
+        "spring.kafka.consumer.bootstrap-servers=${spring.embedded.kafka.brokers}",
+        "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}"
+})
 public class ProductCreatedEventHandlerIntegrationTest {
 
-    @MockitoBean
+    @MockBean
     ProcessEventRepository processedEventRepository;
 
-    @MockitoBean
+    @MockBean
     RestTemplate restTemplate;
 
     @Autowired
     KafkaTemplate<String, Object> kafkaTemplate;
 
-    @MockitoSpyBean
+    @SpyBean
+    @Lazy
     ProductCreatedEventHandler productCreatedEventHandler;
 
+    @Autowired
+    private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;  // ⬅️
+
+    @BeforeEach  // ⬅️ Run before each test
+    public void setUp() {
+        // Wait for all Kafka listener containers to be assigned partitions
+        for (MessageListenerContainer container : kafkaListenerEndpointRegistry.getListenerContainers()) {
+            ContainerTestUtils.waitForAssignment(container, 1);
+        }
+    }
+
+
     @Test
-    public void testProductCreatedEventHandler_OnProductCreated_HandlesEvent() throws Exception {
+    public void testProductCreatedEventHandler_OnProductCreated_HandlesEvent() throws Exception{
 
         // Arrange
         ProductCreatedEvent productCreatedEvent = new ProductCreatedEvent();
@@ -53,39 +89,32 @@ public class ProductCreatedEventHandlerIntegrationTest {
         String messageId = UUID.randomUUID().toString();
         String messageKey = productCreatedEvent.getProductId();
 
-        // setting producer record object which will be sent as kafka message
         ProducerRecord<String, Object> record = new ProducerRecord<>(
-                "product-created-events-topic", //topic name
-                messageKey, // msg key
-                productCreatedEvent); // msg payload which is product obj
+                "product-created-events-topic",
+                messageKey,
+                productCreatedEvent);
 
-        // adding headers
         record.headers().add("messageId", messageId.getBytes());
         record.headers().add(KafkaHeaders.RECEIVED_KEY, messageKey.getBytes());
 
-
-        // mocking repository
         ProcessEventEntity processedEventEntity = new ProcessEventEntity();
-        Mockito.when(processedEventRepository.existsByMessageId(ArgumentMatchers.anyString())).thenReturn(true);
-        Mockito.when(processedEventRepository.save(ArgumentMatchers.any(ProcessEventEntity.class))).thenReturn(null);
-
-
+        when(processedEventRepository.existsByMessageId(anyString())).thenReturn(false);
+        when(processedEventRepository.save(any(ProcessEventEntity.class))).thenReturn(new ProcessEventEntity());
 
         String responseBody = "{\"key\":\"value\"}";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
 
-        Mockito.when(restTemplate.exchange(
-                Mockito.any(String.class),
-                Mockito.any(HttpMethod.class),
-                Mockito.isNull(), Mockito.eq(String.class)
+        when(restTemplate.exchange(
+                any(String.class),
+                any(HttpMethod.class),
+                isNull(), eq(String.class)
         ))
                 .thenReturn(responseEntity);
 
         // Act
         kafkaTemplate.send(record).get();
-
         // Assert
         ArgumentCaptor<String> messageIdCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> messageKeyCaptor = ArgumentCaptor.forClass(String.class);
@@ -99,6 +128,6 @@ public class ProductCreatedEventHandlerIntegrationTest {
         assertEquals(messageKey, messageKeyCaptor.getValue());
         assertEquals(productCreatedEvent.getProductId(), eventCaptor.getValue().getProductId());
 
-
     }
+
 }

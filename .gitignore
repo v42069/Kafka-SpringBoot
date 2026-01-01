@@ -1,0 +1,17 @@
+# Compiled files
+*.class
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.eclipse/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
